@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -5,8 +6,12 @@ import yfinance as yf
 import requests
 
 app = Flask(__name__)
+
+# Use PostgreSQL Database from Render
+DATABASE_URL = os.getenv("DATABASE_URL", "postgres://user:password@host:port/database")  # Replace with your DB URL
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -18,14 +23,13 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     cash = db.Column(db.Float, default=10000)
-    stocks = db.Column(db.PickleType, default={})
-    total_value = db.Column(db.Float, default=10000)
+    stocks = db.Column(db.JSON, default={})  # Changed to JSON for PostgreSQL support
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Create database
+# Create the database tables
 with app.app_context():
     db.create_all()
 
@@ -69,6 +73,61 @@ def logout():
     logout_user()
     return redirect(url_for("home"))
 
+@app.route("/buy", methods=["POST"])
+@login_required
+def buy_stock():
+    data = request.get_json()
+    symbol = data["symbol"].upper()
+    quantity = int(data["quantity"])
+    
+    stock = yf.Ticker(symbol)
+    stock_data = stock.history(period="1d")
+
+    if stock_data.empty:
+        return jsonify({"error": "Invalid stock symbol."})
+
+    price = stock_data["Close"].iloc[-1]
+    cost = price * quantity
+
+    if current_user.cash >= cost:
+        current_user.cash -= cost
+        stocks = current_user.stocks
+        stocks[symbol] = stocks.get(symbol, 0) + quantity
+        current_user.stocks = stocks
+        db.session.commit()
+        return jsonify({"success": True, "portfolio": {"cash": current_user.cash, "stocks": current_user.stocks}})
+    else:
+        return jsonify({"error": "Not enough cash!"})
+
+@app.route("/sell", methods=["POST"])
+@login_required
+def sell_stock():
+    data = request.get_json()
+    symbol = data["symbol"].upper()
+    quantity = int(data["quantity"])
+
+    if current_user.stocks.get(symbol, 0) >= quantity:
+        stock = yf.Ticker(symbol)
+        stock_data = stock.history(period="1d")
+
+        if stock_data.empty:
+            return jsonify({"error": "Invalid stock symbol."})
+
+        price = stock_data["Close"].iloc[-1]
+        revenue = price * quantity
+
+        current_user.cash += revenue
+        stocks = current_user.stocks
+        stocks[symbol] -= quantity
+        if stocks[symbol] == 0:
+            del stocks[symbol]
+        current_user.stocks = stocks
+
+        db.session.commit()
+        return jsonify({"success": True, "portfolio": {"cash": current_user.cash, "stocks": current_user.stocks}})
+    else:
+        return jsonify({"error": "Not enough shares to sell!"})
+
 @app.route("/leaderboard")
 @login_required
 def leaderboard():
@@ -82,12 +141,26 @@ def leaderboard():
             if not stock_data.empty:
                 total_value += stock_data["Close"].iloc[-1] * quantity
         
-        percentage_gain = ((total_value - 10000) / 10000) * 100
-        leaderboard_data.append({"username": user.username, "net_worth": total_value, "gain": round(percentage_gain, 2)})
+        leaderboard_data.append({"username": user.username, "net_worth": total_value})
 
     leaderboard_data.sort(key=lambda x: x["net_worth"], reverse=True)
     
     return render_template("leaderboard.html", leaderboard=leaderboard_data)
 
+@app.route("/api/stock/<symbol>")
+def stock_api(symbol):
+    try:
+        stock = yf.Ticker(symbol)
+        stock_data = stock.history(period="1d")
+
+        if stock_data.empty:
+            return jsonify({"error": "Stock not found."})
+
+        price = stock_data["Close"].iloc[-1]
+        return jsonify({"symbol": symbol.upper(), "price": round(price, 2)})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=81)
+
