@@ -4,4 +4,3 @@ flask-sqlalchemy
 yfinance
 requests
 gunicorn
-
