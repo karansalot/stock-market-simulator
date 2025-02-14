@@ -1,38 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Stock Market Game</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #0c234b;
-            color: white;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-            color: black;
-        }
-        input, button {
-            padding: 10px;
-            font-size: 16px;
-            margin: 5px;
-            width: 90%;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #F4F4F4; }
+        .container { background: white; padding: 20px; max-width: 400px; margin: auto; border-radius: 10px; }
+        input, button { width: 90%; padding: 10px; margin: 10px; font-size: 16px; }
+        button { background-color: #CC0033; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #A10024; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Login</h1>
+        <h2>Login to Your Account</h2>
         <form method="POST">
             <input type="text" name="username" placeholder="Username" required><br>
             <input type="password" name="password" placeholder="Password" required><br>
-            <button type="submit">Login</button>
+            <button type="submit"><i class="fas fa-sign-in-alt"></i> Login</button>
         </form>
         <p>New User? <a href="/register">Register Here</a></p>
     </div>
