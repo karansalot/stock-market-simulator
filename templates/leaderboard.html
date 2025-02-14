@@ -1,6 +1,50 @@
-<h2>Leaderboard</h2>
-<ul>
-    {% for user in leaderboard %}
-    <li>{{ user.username }} - ${{ user.cash }}</li>
-    {% endfor %}
-</ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Leaderboard</title>
+    <link rel="stylesheet" type="text/css" href="/static/static.css">
+    <script>
+        async function loadLeaderboard() {
+            const response = await fetch("https://stock-market-simulator-1.onrender.com/api/leaderboard");
+            const data = await response.json();
+            const leaderboardTable = document.getElementById("leaderboard-body");
+
+            leaderboardTable.innerHTML = "";
+            data.forEach((user, index) => {
+                let row = `
+                    <tr>
+                        <td>#${index + 1}</td>
+                        <td>${user.username}</td>
+                        <td>$${user.portfolio_value.toFixed(2)}</td>
+                    </tr>
+                `;
+                leaderboardTable.innerHTML += row;
+            });
+        }
+
+        window.onload = loadLeaderboard;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <img src="https://www.arizona.edu/sites/default/files/www_webheader-01.svg" alt="University of Arizona" width="250">
+        <h2>Stock Market Leaderboard</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>User</th>
+                    <th>Portfolio Value</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <tr><td colspan="3">Loading...</td></tr>
+            </tbody>
+        </table>
+        <br>
+        <a href="/dashboard.html"><button>Back to Dashboard</button></a>
+    </div>
+</body>
+</html>
