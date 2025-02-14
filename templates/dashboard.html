@@ -1,1 +1,60 @@
-tem
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Market Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Welcome, {{ user.username }}!</h1>
+    <h3>Cash: ${{ user.cash }}</h3>
+
+    <h2>Buy Stock</h2>
+    <input type="text" id="buySymbol" placeholder="Stock symbol">
+    <input type="number" id="buyQuantity" placeholder="Quantity">
+    <button onclick="buyStock()">Buy</button>
+
+    <h2>Sell Stock</h2>
+    <input type="text" id="sellSymbol" placeholder="Stock symbol">
+    <input type="number" id="sellQuantity" placeholder="Quantity">
+    <button onclick="sellStock()">Sell</button>
+
+    <h2>Your Portfolio:</h2>
+    <ul>
+        {% for stock, quantity in user.stocks.items() %}
+            <li>{{ stock }}: {{ quantity }} shares</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Leaderboard</h2>
+    <a href="/leaderboard">View Leaderboard</a>
+
+    <a href="/logout">Logout</a>
+
+    <script>
+        function buyStock() {
+            fetch("/buy", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    symbol: document.getElementById("buySymbol").value,
+                    quantity: document.getElementById("buyQuantity").value
+                })
+            }).then(() => location.reload());
+        }
+
+        function sellStock() {
+            fetch("/sell", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    symbol: document.getElementById("sellSymbol").value,
+                    quantity: document.getElementById("sellQuantity").value
+                })
+            }).then(() => location.reload());
+        }
+    </script>
+</body>
+</html>
+
