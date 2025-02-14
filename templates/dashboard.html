@@ -3,37 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" type="text/css" href="/static/static.css">
+    <title>Stock Market Dashboard</title>
+    <link rel="stylesheet" href="/static/static.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome, {{ username }}!</h1>
-        <h3>Cash Balance: ${{ cash }}</h3>
+    <h1>Stock Market Simulator</h1>
+    <h3>Cash Balance: $<span id="balance">0.00</span></h3>
+    
+    <h2>Buy Stocks</h2>
+    <input type="text" id="buySymbol" placeholder="Stock Symbol">
+    <input type="number" id="buyQuantity" placeholder="Quantity">
+    <button onclick="buyStock()">Buy</button>
+    
+    <h2>Sell Stocks</h2>
+    <input type="text" id="sellSymbol" placeholder="Stock Symbol">
+    <input type="number" id="sellQuantity" placeholder="Quantity">
+    <button onclick="sellStock()">Sell</button>
 
-        <h2>Buy Stock</h2>
-        <form action="/buy" method="POST">
-            <input type="text" name="symbol" placeholder="Stock Symbol" required>
-            <input type="number" name="quantity" placeholder="Quantity" required>
-            <button type="submit">Buy</button>
-        </form>
+    <h2>Portfolio</h2>
+    <ul id="portfolio"></ul>
 
-        <h2>Sell Stock</h2>
-        <form action="/sell" method="POST">
-            <input type="text" name="symbol" placeholder="Stock Symbol" required>
-            <input type="number" name="quantity" placeholder="Quantity" required>
-            <button type="submit">Sell</button>
-        </form>
+    <h2>Leaderboard</h2>
+    <ul id="leaderboard"></ul>
 
-        <h2>Your Portfolio</h2>
-        <table>
-            <tr><th>Stock</th><th>Shares</th></tr>
-            {% for stock, shares in portfolio.items() %}
-            <tr><td>{{ stock }}</td><td>{{ shares }}</td></tr>
-            {% endfor %}
-        </table>
+    <script>
+        const BACKEND_URL = "https://stock-market-simulator-1.onrender.com";
 
-        <br><a href="/leaderboard"><button>View Leaderboard</button></a>
-    </div>
+        async function fetchPortfolio() {
+            const response = await fetch(`${BACKEND_URL}/dashboard`);
+            const data = await response.json();
+            document.getElementById("balance").innerText = data.user.balance.toFixed(2);
+
+            let portfolioHTML = "";
+            data.portfolio.forEach(stock => {
+                portfolioHTML += `<li>${stock.stock_symbol}: ${stock.quantity} shares</li>`;
+            });
+            document.getElementById("portfolio").innerHTML = portfolioHTML;
+        }
+
+        async function buyStock() {
+            const symbol = document.getElementById("buySymbol").value;
+            const quantity = document.getElementById("buyQuantity").value;
+
+            const response = await fetch(`${BACKEND_URL}/buy`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ symbol, quantity })
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                alert(data.error);
+            } else {
+                fetchPortfolio();
+            }
+        }
+
+        async function sellStock() {
+            const symbol = document.getElementById("sellSymbol").value;
+            const quantity = document.getElementById("sellQuantity").value;
+
+            const response = await fetch(`${BACKEND_URL}/sell`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ symbol, quantity })
+            });
+
+            const data = await response.json();
+            if (data.error) {
+                alert(data.error);
+            } else {
+                fetchPortfolio();
+            }
+        }
+
+        async function fetchLeaderboard() {
+            const response = await fetch(`${BACKEND_URL}/leaderboard`);
+            const data = await response.text();
+            document.getElementById("leaderboard").innerHTML = data;
+        }
+
+        fetchPortfolio();
+        fetchLeaderboard();
+    </script>
 </body>
 </html>
