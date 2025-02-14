@@ -1,6 +1,8 @@
 flask
 flask-login
 flask-sqlalchemy
+gunicorn
 yfinance
 requests
-gunicorn
+psycopg2-binary
+
