@@ -7,3 +7,7 @@ yfinance
 requests
 psycopg2-binary
 werkzeug
+Flask
+Flask-SQLAlchemy
+Werkzeug
+yfinance
