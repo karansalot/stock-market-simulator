@@ -19,7 +19,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100), nullable=False)
     cash = db.Column(db.Float, default=10000)
     stocks = db.Column(db.PickleType, default={})
-    total_value = db.Column(db.Float, default=10000)  # Tracks net worth
+    total_value = db.Column(db.Float, default=10000)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -68,57 +68,6 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for("home"))
-
-@app.route("/buy", methods=["POST"])
-@login_required
-def buy_stock():
-    data = request.get_json()
-    symbol = data["symbol"].upper()
-    quantity = int(data["quantity"])
-    
-    stock = yf.Ticker(symbol)
-    stock_data = stock.history(period="1d")
-
-    if stock_data.empty:
-        return jsonify({"error": "Invalid stock symbol."})
-
-    price = stock_data["Close"].iloc[-1]
-    cost = price * quantity
-
-    if current_user.cash >= cost:
-        current_user.cash -= cost
-        current_user.stocks[symbol] = current_user.stocks.get(symbol, 0) + quantity
-        db.session.commit()
-        return jsonify({"success": True, "portfolio": {"cash": current_user.cash, "stocks": current_user.stocks}})
-    else:
-        return jsonify({"error": "Not enough cash!"})
-
-@app.route("/sell", methods=["POST"])
-@login_required
-def sell_stock():
-    data = request.get_json()
-    symbol = data["symbol"].upper()
-    quantity = int(data["quantity"])
-
-    if current_user.stocks.get(symbol, 0) >= quantity:
-        stock = yf.Ticker(symbol)
-        stock_data = stock.history(period="1d")
-
-        if stock_data.empty:
-            return jsonify({"error": "Invalid stock symbol."})
-
-        price = stock_data["Close"].iloc[-1]
-        revenue = price * quantity
-
-        current_user.cash += revenue
-        current_user.stocks[symbol] -= quantity
-        if current_user.stocks[symbol] == 0:
-            del current_user.stocks[symbol]
-        
-        db.session.commit()
-        return jsonify({"success": True, "portfolio": {"cash": current_user.cash, "stocks": current_user.stocks}})
-    else:
-        return jsonify({"error": "Not enough shares to sell!"})
 
 @app.route("/leaderboard")
 @login_required
