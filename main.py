@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100), nullable=False)
     cash = db.Column(db.Float, default=10000)
     stocks = db.Column(db.PickleType, default={})
+    total_value = db.Column(db.Float, default=10000)  # Tracks net worth
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -132,7 +133,8 @@ def leaderboard():
             if not stock_data.empty:
                 total_value += stock_data["Close"].iloc[-1] * quantity
         
-        leaderboard_data.append({"username": user.username, "net_worth": total_value})
+        percentage_gain = ((total_value - 10000) / 10000) * 100
+        leaderboard_data.append({"username": user.username, "net_worth": total_value, "gain": round(percentage_gain, 2)})
 
     leaderboard_data.sort(key=lambda x: x["net_worth"], reverse=True)
     
@@ -140,4 +142,3 @@ def leaderboard():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=81)
-
