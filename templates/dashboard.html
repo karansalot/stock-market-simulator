@@ -1,3 +1,88 @@
-<h1>Welcome, {{ user.username }}</h1>
-<h3>Cash: ${{ user.cash }}</h3>
-<a href="/logout">Logout</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="static.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Stock Market Dashboard</h1>
+        <h2>Welcome, <span id="user"></span></h2>
+
+        <h3>Check Stock Price</h3>
+        <input type="text" id="stockSymbol" placeholder="Enter Stock Symbol">
+        <button onclick="checkStock()">Check Price</button>
+        <p id="stockResult"></p>
+
+        <h3>Buy Stock</h3>
+        <input type="text" id="buySymbol" placeholder="Stock Symbol">
+        <input type="number" id="buyQuantity" placeholder="Quantity">
+        <button onclick="buyStock()">Buy</button>
+
+        <h3>Sell Stock</h3>
+        <input type="text" id="sellSymbol" placeholder="Stock Symbol">
+        <input type="number" id="sellQuantity" placeholder="Quantity">
+        <button onclick="sellStock()">Sell</button>
+
+        <h2>Your Portfolio</h2>
+        <ul id="portfolio"></ul>
+
+        <h2>Leaderboard</h2>
+        <ul id="leaderboard"></ul>
+    </div>
+
+    <script>
+        document.getElementById("user").innerText = localStorage.getItem("username");
+
+        function checkStock() {
+            let symbol = document.getElementById("stockSymbol").value;
+            fetch(`https://your-backend-app.onrender.com/get_stock/${symbol}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById("stockResult").innerText = "Error: " + data.error;
+                } else {
+                    document.getElementById("stockResult").innerText = `Price of ${data.symbol}: $${data.price}`;
+                }
+            });
+        }
+
+        function buyStock() {
+            let symbol = document.getElementById("buySymbol").value;
+            let quantity = document.getElementById("buyQuantity").value;
+            fetch("https://your-backend-app.onrender.com/buy", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: localStorage.getItem("username"), symbol, quantity })
+            })
+            .then(response => response.json())
+            .then(data => updatePortfolio(data));
+        }
+
+        function sellStock() {
+            let symbol = document.getElementById("sellSymbol").value;
+            let quantity = document.getElementById("sellQuantity").value;
+            fetch("https://your-backend-app.onrender.com/sell", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: localStorage.getItem("username"), symbol, quantity })
+            })
+            .then(response => response.json())
+            .then(data => updatePortfolio(data));
+        }
+
+        function updatePortfolio(data) {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById("portfolio").innerHTML = "";
+                for (let stock in data.portfolio) {
+                    document.getElementById("portfolio").innerHTML += `<li>${stock}: ${data.portfolio[stock]} shares</li>`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
