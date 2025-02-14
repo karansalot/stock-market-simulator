@@ -1,78 +1,49 @@
 import os
-import re
-import traceback  # Import to capture errors
-from flask import Flask
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
+import yfinance as yf
 
 app = Flask(__name__)
 
-# Fetch DATABASE_URL from Render
+# ✅ **Fix Environment Variable Issue**
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Debugging: Print the database URL in logs
-print("Original DATABASE_URL:", DATABASE_URL)
+if DATABASE_URL is None:
+    raise ValueError("❌ DATABASE_URL is not set! Check your environment variables on Render.")
 
-# Ensure the URL exists before using
-if DATABASE_URL:
-    # Convert 'postgres://' to 'postgresql://'
-    if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+# ✅ **Properly Configure the Database**
+app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL.replace("postgres://", "postgresql://")  # Fix for SQLAlchemy
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    # Debugging: Print the corrected database URL
-    print("Updated DATABASE_URL:", DATABASE_URL)
+db = SQLAlchemy(app)
 
-# Set SQLAlchemy Database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# ✅ **Create a User Model**
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    balance = db.Column(db.Float, default=10000.00)
 
-# Initialize SQLAlchemy
-try:
-    db = SQLAlchemy(app)
-    print("✅ Database initialized successfully!")
-except Exception as e:
-    print("❌ Database initialization error:", str(e))
-    print(traceback.format_exc())
+# ✅ **Create a Stock Portfolio Model**
+class Stock(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    symbol = db.Column(db.String(10), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
 
-# Home route for testing
+# ✅ **Fix Return Statement**
 @app.route("/")
 def home():
-    return "Stock Market Simulator"
-import os
-import re
-import traceback  # Import to capture errors
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+    return "Stock Market Simulator is Running Successfully 🚀"
 
-app = Flask(__name__)
+# ✅ **Check Stock Price API**
+@app.route("/get_stock/<symbol>")
+def get_stock(symbol):
+    try:
+        stock = yf.Ticker(symbol)
+        price = stock.history(period="1d")["Close"].iloc[-1]
+        return jsonify({"symbol": symbol, "price": price})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
-# Fetch DATABASE_URL from Render
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-# Debugging: Print the database URL in logs
-print("Original DATABASE_URL:", DATABASE_URL)
-
-# Ensure the URL exists before using
-if DATABASE_URL:
-    # Convert 'postgres://' to 'postgresql://'
-    if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-
-    # Debugging: Print the corrected database URL
-    print("Updated DATABASE_URL:", DATABASE_URL)
-
-# Set SQLAlchemy Database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Initialize SQLAlchemy
-try:
-    db = SQLAlchemy(app)
-    print("✅ Database initialized successfully!")
-except Exception as e:
-    print("❌ Database initialization error:", str(e))
-    print(traceback.format_exc())
-
-# Home route for testing
-@app.route("/")
-def home():
-    return "Stock Mar
+if __name__ == "__main__":
+    app.run(debug=True)
