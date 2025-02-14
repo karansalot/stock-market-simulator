@@ -1,89 +1,23 @@
-/* GENERAL STYLES */
 body {
     font-family: Arial, sans-serif;
-    background-color: #F8F8F8;
+    background-color: #f8f9fa;
     text-align: center;
     padding: 20px;
-    margin: 0;
 }
 
-/* CONTAINER */
-.container {
-    background-color: white;
-    padding: 30px;
-    max-width: 800px;
-    margin: auto;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+h1 {
+    color: #cc0033;
 }
 
-/* UNIVERSITY LOGO */
-.logo {
-    width: 200px;
-    margin-bottom: 20px;
-}
-
-/* HEADINGS */
-h1, h2, h3 {
-    color: #CC0033;
-}
-
-/* BUTTONS */
 button {
-    background-color: #CC0033;
+    background-color: #cc0033;
     color: white;
-    padding: 10px 15px;
+    padding: 10px;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
-    font-size: 16px;
+    margin: 5px;
 }
 
 button:hover {
-    background-color: #A10024;
-}
-
-/* INPUT FIELDS */
-input, select {
-    width: 80%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-/* LINKS */
-a {
-    text-decoration: none;
-    color: #CC0033;
-    font-weight: bold;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* TABLE STYLING (Leaderboard & Portfolio) */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-th, td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: center;
-    font-size: 16px;
-}
-
-th {
-    background-color: #CC0033;
-    color: white;
-}
-
-tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: #a10024;
 }
