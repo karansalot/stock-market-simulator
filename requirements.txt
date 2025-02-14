@@ -1,7 +1,9 @@
 flask
-flask-login
+flask-cors
 flask-sqlalchemy
+flask-login
 gunicorn
 yfinance
 requests
 psycopg2-binary
+werkzeug
