@@ -11,3 +11,4 @@ Flask
 Flask-SQLAlchemy
 Werkzeug
 yfinance
+pip install Flask-SQLAlchemy psycopg2-binary
