@@ -1,39 +1,78 @@
 import os
-from flask import Flask, render_template
+import re
+import traceback  # Import to capture errors
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# ✅ Database Configuration (Ensure Environment Variable is Correct)
-database_url = os.getenv("DATABASE_URL")
-if database_url:
-    database_url = database_url.replace("port", "5432")  # Fix incorrect port issue
-    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+# Fetch DATABASE_URL from Render
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-db = SQLAlchemy(app)
+# Debugging: Print the database URL in logs
+print("Original DATABASE_URL:", DATABASE_URL)
 
-# ✅ Serve HTML Templates
+# Ensure the URL exists before using
+if DATABASE_URL:
+    # Convert 'postgres://' to 'postgresql://'
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+    # Debugging: Print the corrected database URL
+    print("Updated DATABASE_URL:", DATABASE_URL)
+
+# Set SQLAlchemy Database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize SQLAlchemy
+try:
+    db = SQLAlchemy(app)
+    print("✅ Database initialized successfully!")
+except Exception as e:
+    print("❌ Database initialization error:", str(e))
+    print(traceback.format_exc())
+
+# Home route for testing
 @app.route("/")
 def home():
-    return render_template("index.html")  # Ensure index.html is in the templates folder
+    return "Stock Mar
+import os
+import re
+import traceback  # Import to capture errors
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-@app.route("/about")
-def about():
-    return render_template("about.html")  # Ensure about.html is in the templates folder
+app = Flask(__name__)
 
-@app.route("/contact")
-def contact():
-    return render_template("contact.html")  # Ensure contact.html is in the templates folder
+# Fetch DATABASE_URL from Render
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# ✅ Database Connection Check
-@app.route("/db-check")
-def db_check():
-    try:
-        db.session.execute("SELECT 1")  # Simple test query
-        return "✅ Database is connected!"
-    except Exception as e:
-        return f"❌ Database connection failed: {e}"
+# Debugging: Print the database URL in logs
+print("Original DATABASE_URL:", DATABASE_URL)
 
-# ✅ Run Flask App (Ensure It Works on Render)
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)), debug=True)
+# Ensure the URL exists before using
+if DATABASE_URL:
+    # Convert 'postgres://' to 'postgresql://'
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+    # Debugging: Print the corrected database URL
+    print("Updated DATABASE_URL:", DATABASE_URL)
+
+# Set SQLAlchemy Database URI
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize SQLAlchemy
+try:
+    db = SQLAlchemy(app)
+    print("✅ Database initialized successfully!")
+except Exception as e:
+    print("❌ Database initialization error:", str(e))
+    print(traceback.format_exc())
+
+# Home route for testing
+@app.route("/")
+def home():
+    return "Stock Mar
