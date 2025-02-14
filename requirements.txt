@@ -5,4 +5,3 @@ gunicorn
 yfinance
 requests
 psycopg2-binary
-
