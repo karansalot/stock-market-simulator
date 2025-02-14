@@ -36,7 +36,7 @@ except Exception as e:
 # Home route for testing
 @app.route("/")
 def home():
-    return "Stock Mar
+    return "Stock Market Simulator"
 import os
 import re
 import traceback  # Import to capture errors
