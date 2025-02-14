@@ -1,22 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Dashboard</title>
-    <script>
-        function fetchStockPrice() {
-            let symbol = document.getElementById("symbol").value;
-            fetch(`https://your-backend-app.onrender.com/get_stock/${symbol}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("price").innerText = data.price ? `Price: $${data.price}` : "Invalid symbol";
-                });
-        }
-    </script>
-</head>
-<body>
-    <h2>Stock Market Dashboard</h2>
-    <input type="text" id="symbol" placeholder="Enter Stock Symbol">
-    <button onclick="fetchStockPrice()">Check Price</button>
-    <p id="price"></p>
-</body>
-</html>
+<h1>Welcome, {{ user.username }}</h1>
+<h3>Cash: ${{ user.cash }}</h3>
+<a href="/logout">Logout</a>
