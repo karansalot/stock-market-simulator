@@ -1,19 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Stock Market Game</title>
+    <title>Register - Stock Market Simulator</title>
+    <script>
+        function register() {
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+
+            fetch("https://your-backend-app.onrender.com/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert("Registration successful! Please login.");
+                    window.location.href = "login.html";  // Redirect to login page
+                } else {
+                    alert("Error: " + data.error);
+                }
+            });
+        }
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h2>Create Your Account</h2>
-        <form method="POST">
-            <input type="text" name="username" placeholder="Username" required><br>
-            <input type="password" name="password" placeholder="Password" required><br>
-            <button type="submit">Register</button>
-        </form>
-        <p>Already have an account? <a href="/login">Login Here</a></p>
-    </div>
+    <h2>Create an Account</h2>
+    <input type="text" id="username" placeholder="Choose a username"><br>
+    <input type="password" id="password" placeholder="Choose a password"><br>
+    <button onclick="register()">Register</button>
 </body>
 </html>
