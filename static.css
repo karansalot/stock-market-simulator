@@ -1,1 +1,68 @@
 
+/* University of Arizona Color Palette */
+:root {
+    --primary-color: #cc0033;
+    --secondary-color: #003366;
+    --background-color: #f8f8f8;
+    --text-color: #222;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+h1, h2, h3 {
+    color: var(--primary-color);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: var(--secondary-color);
+}
+
+input, select {
+    padding: 8px;
+    margin: 5px;
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+}
+
+.navbar {
+    background-color: var(--secondary-color);
+    padding: 15px;
+    color: white;
+    text-align: center;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    color: var(--secondary-color);
+}
