@@ -4,28 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #F4F4F4; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; }
+        th { background-color: #CC0033; color: white; }
+    </style>
 </head>
 <body>
-    <h1>Leaderboard</h1>
-    <table border="1">
-        <tr>
-            <th>Rank</th>
-            <th>Username</th>
-            <th>Net Worth</th>
-            <th>Gain (%)</th>
-        </tr>
-        {% for player in leaderboard %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ player.username }}</td>
-            <td>${{ player.net_worth | round(2) }}</td>
-            <td>{{ player.gain }}%</td>
-        </tr>
-        {% endfor %}
-    </table>
-
-    <br>
-    <a href="/dashboard">Back to Dashboard</a>
+    <div class="container">
+        <h1>Leaderboard</h1>
+        <table>
+            <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Net Worth</th>
+            </tr>
+            {% for rank, user in leaderboard %}
+            <tr>
+                <td>{{ rank+1 }}</td>
+                <td>{{ user.username }}</td>
+                <td>${{ user.net_worth }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <a href="/dashboard">Back to Dashboard</a>
+    </div>
 </body>
 </html>
+
 
