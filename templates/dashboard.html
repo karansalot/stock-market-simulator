@@ -1,85 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Market Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #F4F4F4; }
-        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-        input, button { padding: 8px; font-size: 16px; margin: 5px; }
-        button { background-color: #CC0033; color: white; border: none; cursor: pointer; padding: 10px; }
-        button:hover { background-color: #A10024; }
-    </style>
+    <title>Dashboard</title>
+    <script>
+        function fetchStockPrice() {
+            let symbol = document.getElementById("symbol").value;
+            fetch(`https://your-backend-app.onrender.com/get_stock/${symbol}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("price").innerText = data.price ? `Price: $${data.price}` : "Invalid symbol";
+                });
+        }
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Welcome, {{ user.username }}!</h1>
-        <h3>Cash: ${{ user.cash }}</h3>
-
-        <h2>Buy Stock</h2>
-        <input type="text" id="buySymbol" placeholder="Stock symbol">
-        <input type="number" id="buyQuantity" placeholder="Quantity">
-        <button onclick="buyStock()">Buy</button>
-
-        <h2>Sell Stock</h2>
-        <input type="text" id="sellSymbol" placeholder="Stock symbol">
-        <input type="number" id="sellQuantity" placeholder="Quantity">
-        <button onclick="sellStock()">Sell</button>
-
-        <h2>Stock Market Chart</h2>
-        <canvas id="marketChart"></canvas>
-
-        <h2>Your Portfolio:</h2>
-        <ul>
-            {% for stock, quantity in user.stocks.items() %}
-                <li>{{ stock }}: {{ quantity }} shares</li>
-            {% endfor %}
-        </ul>
-        
-        <a href="/leaderboard">View Leaderboard</a> |
-        <a href="/logout">Logout</a>
-    </div>
-
-    <script>
-        function buyStock() {
-            fetch("/buy", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    symbol: document.getElementById("buySymbol").value,
-                    quantity: document.getElementById("buyQuantity").value
-                })
-            }).then(() => location.reload());
-        }
-
-        function sellStock() {
-            fetch("/sell", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    symbol: document.getElementById("sellSymbol").value,
-                    quantity: document.getElementById("sellQuantity").value
-                })
-            }).then(() => location.reload());
-        }
-
-        fetch("/get_market_chart")
-            .then(response => response.json())
-            .then(data => {
-                let ctx = document.getElementById("marketChart").getContext("2d");
-                new Chart(ctx, {
-                    type: "line",
-                    data: {
-                        labels: data.labels,
-                        datasets: [
-                            { label: "Dow Jones", data: data.dow, borderColor: "blue" },
-                            { label: "S&P 500", data: data.sp500, borderColor: "red" }
-                        ]
-                    }
-                });
-            });
-    </script>
+    <h2>Stock Market Dashboard</h2>
+    <input type="text" id="symbol" placeholder="Enter Stock Symbol">
+    <button onclick="fetchStockPrice()">Check Price</button>
+    <p id="price"></p>
 </body>
 </html>
