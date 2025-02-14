@@ -6,16 +6,17 @@
     <title>Stock Market Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #0c234b; color: white; text-align: center; }
-        .container { background: white; color: black; padding: 20px; border-radius: 8px; margin: auto; max-width: 600px; }
-        input, button { padding: 10px; margin: 5px; font-size: 16px; }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #F4F4F4; }
+        .container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        input, button { padding: 8px; font-size: 16px; margin: 5px; }
+        button { background-color: #CC0033; color: white; border: none; cursor: pointer; padding: 10px; }
+        button:hover { background-color: #A10024; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Welcome, {{ user.username }}!</h1>
         <h3>Cash: ${{ user.cash }}</h3>
-        <canvas id="stockChart"></canvas>
 
         <h2>Buy Stock</h2>
         <input type="text" id="buySymbol" placeholder="Stock symbol">
@@ -26,13 +27,59 @@
         <input type="text" id="sellSymbol" placeholder="Stock symbol">
         <input type="number" id="sellQuantity" placeholder="Quantity">
         <button onclick="sellStock()">Sell</button>
+
+        <h2>Stock Market Chart</h2>
+        <canvas id="marketChart"></canvas>
+
+        <h2>Your Portfolio:</h2>
+        <ul>
+            {% for stock, quantity in user.stocks.items() %}
+                <li>{{ stock }}: {{ quantity }} shares</li>
+            {% endfor %}
+        </ul>
+        
+        <a href="/leaderboard">View Leaderboard</a> |
+        <a href="/logout">Logout</a>
     </div>
 
     <script>
-        let stockChart = new Chart(document.getElementById("stockChart"), {
-            type: "line",
-            data: { labels: ["Day 1", "Day 2"], datasets: [{ data: [100, 120], borderColor: "red", fill: false }] },
-        });
+        function buyStock() {
+            fetch("/buy", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    symbol: document.getElementById("buySymbol").value,
+                    quantity: document.getElementById("buyQuantity").value
+                })
+            }).then(() => location.reload());
+        }
+
+        function sellStock() {
+            fetch("/sell", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    symbol: document.getElementById("sellSymbol").value,
+                    quantity: document.getElementById("sellQuantity").value
+                })
+            }).then(() => location.reload());
+        }
+
+        fetch("/get_market_chart")
+            .then(response => response.json())
+            .then(data => {
+                let ctx = document.getElementById("marketChart").getContext("2d");
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: data.labels,
+                        datasets: [
+                            { label: "Dow Jones", data: data.dow, borderColor: "blue" },
+                            { label: "S&P 500", data: data.sp500, borderColor: "red" }
+                        ]
+                    }
+                });
+            });
     </script>
 </body>
 </html>
